@@ -6,3 +6,4 @@ cryptography
 google-generativeai
 sentence-transformers
 chromadb
+gunicorn
