@@ -1,35 +1,33 @@
-import os
-from flask import Flask, request
+import streamlit as st
 from dotenv import load_dotenv
-from twilio.twiml.messaging_response import MessagingResponse
-from gemini_utils import transcribe_and_process
-from twilio_utils import download_audio_file
+import tempfile
+from gemini_utils import process_text, transcribe_and_process_audio
 
 load_dotenv()
-app = Flask(__name__)
+st.set_page_config(page_title="Voice Privacy App", layout="centered")
 
-@app.route("/webhook", methods=["POST"])
-def whatsapp_webhook():
-    num_media = int(request.form.get("NumMedia", 0))
-    resp = MessagingResponse()
+st.title("🔐 Voice Privacy App")
+st.write("Upload audio or type text to detect and encrypt sensitive information.")
 
-    if num_media == 0:
-        resp.message("Please send a voice message in any Indian language.")
-        return str(resp)
+input_mode = st.radio("Select input type:", ["Text", "Audio"], horizontal=True)
 
-    media_url = request.form.get("MediaUrl0")
-    content_type = request.form.get("MediaContentType0", "")
+if input_mode == "Text":
+    user_text = st.text_area("Enter your message:")
+    if st.button("Analyze Text"):
+        if user_text.strip():
+            response = process_text(user_text)
+            st.success("✅ Processed Successfully")
+            st.markdown(response)
+        else:
+            st.warning("Please enter some text.")
 
-    if not any(fmt in content_type for fmt in ["audio", "mp3", "wav", "ogg"]):
-        resp.message("Unsupported audio format. Send MP3, WAV or OGG.")
-        return str(resp)
+else:
+    uploaded_file = st.file_uploader("Upload audio file (.mp3/.wav/.ogg)", type=["mp3", "wav", "ogg"])
+    if uploaded_file and st.button("Analyze Audio"):
+        with tempfile.NamedTemporaryFile(delete=False, suffix=".mp3") as tmp:
+            tmp.write(uploaded_file.read())
+            tmp_path = tmp.name
 
-    try:
-        audio_data = download_audio_file(media_url)
-        response = transcribe_and_process(audio_data)
-        resp.message(response)
-    except Exception as e:
-        print("Error:", e)
-        resp.message("Sorry, could not process your voice note. Try again.")
-
-    return str(resp)
+        response = transcribe_and_process_audio(tmp_path)
+        st.success("✅ Processed Successfully")
+        st.markdown(response)

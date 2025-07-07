@@ -1,29 +1,5 @@
-# Ignore environment variables
 .env
-
-# Ignore Python cache files
 __pycache__/
 *.py[cod]
-*.pyo
-*.pyd
-
-# Ignore ChromaDB local storage
-chroma/
-
-# Ignore virtual environments
-venv/
-env/
-.venv/
-.env/
-
-# Ignore OS-specific files
-.DS_Store
-Thumbs.db
-
-# Ignore logs and temp files
 *.log
-*.tmp
-
-# Byte-compiled and Jupyter outputs
-.ipynb_checkpoints/
-*.ipynb
+chroma/

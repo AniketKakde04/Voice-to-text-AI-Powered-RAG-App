@@ -1,9 +1,7 @@
-flask
+streamlit
 python-dotenv
-twilio
-requests
 cryptography
 google-generativeai
 sentence-transformers
 chromadb
-gunicorn
+pydub
